@@ -1,0 +1,37 @@
+#include<stdio.h>  
+#include<stdlib.h>  
+#include<unistd.h>  
+#include<sys/shm.h>  
+#include<string.h>  
+
+int main() {  
+    int i;  
+    void *shared_memory;  
+    char buff[100];  
+    int shmid;  
+
+    // Creating a shared memory segment
+    shmid = shmget((key_t)2345, 1024, 0666 | IPC_CREAT);   
+    // The key 2345 identifies the shared memory segment.
+    // 1024 is the size of the shared memory segment in bytes.
+    // 0666 sets the permissions (read/write) on the shared memory segment.
+    // IPC_CREAT flag creates the shared memory segment if it does not exist.
+    
+    printf("Key of shared memory is %d\n", shmid);  
+    
+    // Attaching the process to the shared memory segment
+    shared_memory = shmat(shmid, NULL, 0);   
+    // shmat() attaches the calling process to the shared memory segment.
+    // NULL is passed as the second parameter, indicating that the system should choose a suitable address for the attachment.
+    // The third parameter is set to 0, meaning the process gets read and write access.
+    
+    printf("Process attached at %p\n", shared_memory);   
+    // Print the address where the segment is attached with this process
+    
+    printf("Enter some data to write to shared memory\n");  
+    read(0, buff, 100); // Get some input from the user  
+    strcpy(shared_memory, buff); // Write data to shared memory  
+    printf("You wrote: %s\n", (char *)shared_memory);  
+
+    return 0;
+}
